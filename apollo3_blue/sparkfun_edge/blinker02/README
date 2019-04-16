@@ -1,0 +1,5 @@
+
+Uses ARM systick timer.  Documentation for the internal timer says 48Mhz
+this shows 48Mhz.  There is a divide by 2 available.  Which does appear
+to give us 24Mhz.
+
