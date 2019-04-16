@@ -1,0 +1,112 @@
+
+Was wondering if I was ever going to mess with one of these Ambiq
+parts.  Not at mouser and they are BGA so I hit two strikes there.
+
+SparkFun Edge Development Board - Apollo3 Blue
+https://www.sparkfun.com/products/15170
+
+https://ambiqmicro.com/mcu/
+
+Get the Datasheet.
+
+http://infocenter.arm.com
+
+Get the ARMv7m Architectural Reference Manual
+and the cortex-m4 Technical Reference Manual
+
+(from the datasheet and Ambiq website we know this contains a
+cortex-m4 core)
+
+LEDS:
+
+GPIO 46
+GPIO 37
+GPIO 44
+GPIO 47
+
+They python files in this directory are from the Ambiq SDK and
+from Sparkfun.  I suspect sparkfun modified the bootloader, which
+means maybe we can too.  We will see.  They have some form of secure
+boot(loader) which requires this stuff, I didnt make my own version
+of this stuff nor have I replaced the bootloader, but will see how
+that goes over time.
+
+To write a program to the board first run make to build the
+
+main_nonsecure_wire.bin
+
+file, then press and hold the button that has a 14 next to it,
+press and release the button with rst next to it, do not release
+the 14 button yet.  run
+
+make prog
+
+THEN you can release 14, and press reset to run the program.
+
+Looks like this:
+
+make
+arm-none-eabi-as --warn --fatal-warnings -mcpu=cortex-m0 flash.s -o flash.o
+arm-none-eabi-gcc -Wall -Werror -O2 -nostdlib -nostartfiles -ffreestanding  -mcpu=cortex-m0 -mthumb -c notmain.c -o notmain.o
+arm-none-eabi-ld -o notmain.elf -T flash.ld flash.o notmain.o
+arm-none-eabi-objdump -D notmain.elf > notmain.list
+arm-none-eabi-objcopy notmain.elf notmain.bin -O binary
+python3 ../create_cust_image_blob.py --bin notmain.bin --load-address 0xC000 --magic-num 0xCB -o main_nonsecure_ota --version 0x0
+Header Size =  0x80
+original app_size  0x144 ( 324 )
+load_address  0xc000 ( 49152 )
+app_size  0x144 ( 324 )
+w0 = 0xcb0001c4
+Security Value  0x10
+w2 =  0x10008080
+addrWord =  0xc000
+versionKeyWord =  0x0
+child0/feature =  0xffffffff
+child1 =  0xffffffff
+crc =   0x7a57808
+Writing to file  main_nonsecure_ota.bin
+python3 ../create_cust_wireupdate_blob.py --load-address 0x20000 --bin main_nonsecure_ota.bin -i 6 -o main_nonsecure_wire --options 0x1
+Header Size =  0x60
+app_size  0x1c4 ( 452 )
+Writing to file  main_nonsecure_wire.bin
+Image from  0x0  to  0x1c4  will be loaded at 0x20000
+rm -rf ../__pycache__
+
+
+make prog
+python3 ../uart_wired_update_sparkfun.py -b 921600 /dev/ttyUSB1 -r 1 -f main_nonsecure_wire.bin -i 6
+Connecting with Corvette over serial port /dev/ttyUSB1...
+Sending Hello.
+Received response for Hello
+Received Status
+length =  0x58
+version =  0x3
+Max Storage =  0x4ffa0
+Status =  0x2
+State =  0x7
+AMInfo =
+0x1
+0xff2da3ff
+0x55fff
+0x1
+0x49f40003
+0xffffffff
+0xffffffff
+0xffffffff
+0xffffffff
+0xffffffff
+0xffffffff
+0xffffffff
+0xffffffff
+0xffffffff
+0xffffffff
+0xffffffff
+Sending OTA Descriptor =  0xfe000
+Sending Update Command.
+number of updates needed =  1
+Sending block of size  0x224  from  0x0  to  0x224
+Sending Data Packet of length  548
+Sending Reset Command.
+Done.
+
+

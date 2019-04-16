@@ -1,0 +1,16 @@
+
+LEDS:
+
+GPIO 46
+GPIO 37
+GPIO 44
+GPIO 47
+
+Elementary blinker.
+
+They have pad controls separate from the gpio peripheral controls which
+is interesting and good.  The reset value for the pad controls is what
+we want for this example so dont need to modify them.
+
+The dummy loop simply burns time so you can see the led, no precision
+time value, depends in part on your compiler.
