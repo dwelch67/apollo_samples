@@ -25,7 +25,7 @@ def main():
     # Open a serial port, and communicate with Device
     #
     # We will use a UART timeout value of 12 second. This should be long
-    # enough that the slave will respond to us, but short enough that a human
+    # enough that the dependent will respond to us, but short enough that a human
     # operator should see errors quickly..
     # Max flashing time depends on the amount of SRAM available.
     # For very large images, the flashing happens page by page.
